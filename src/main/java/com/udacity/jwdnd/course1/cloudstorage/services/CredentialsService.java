@@ -4,7 +4,6 @@ import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialsMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -29,10 +28,5 @@ public class CredentialsService {
 
     public List<Credentials> getCredentials(String userId) {
         return credentialsMapper.getCredentials(userId);
-    }
-
-    @PostConstruct
-    public void postConstruct() {
-        System.out.println("Creating NoteService bean");
     }
 }

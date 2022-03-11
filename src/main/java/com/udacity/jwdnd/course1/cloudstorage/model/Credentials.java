@@ -1,26 +1,36 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
 public class Credentials {
-    private String credentialsOwner;
-    private String credentialsId;
+    private String owner;
+    private String id;
     private String url;
     private String username;
     private String password;
 
-    public String getCredentialsOwner() {
-        return credentialsOwner;
+    public Credentials() { }
+
+    public Credentials(String owner, String id, String url, String username, String password) {
+        this.owner = owner;
+        this.id = id;
+        this.url = url;
+        this.username = username;
+        this.password = password;
     }
 
-    public void setCredentialsOwner(String credentialsOwner) {
-        this.credentialsOwner = credentialsOwner;
+    public String getOwner() {
+        return owner;
     }
 
-    public String getCredentialsId() {
-        return credentialsId;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
-    public void setCredentialsId(String credentialsId) {
-        this.credentialsId = credentialsId;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getUrl() {
