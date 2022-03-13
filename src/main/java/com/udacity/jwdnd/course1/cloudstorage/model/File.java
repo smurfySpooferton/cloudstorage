@@ -1,22 +1,22 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
 public class File {
-    private String fileOwner;
-    private String fileId;
+    private Integer id;
+    private String owner;
 
-    public String getFileOwner() {
-        return fileOwner;
+    public Integer getId() {
+        return id;
     }
 
-    public void setFileOwner(String fileOwner) {
-        this.fileOwner = fileOwner;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getFileId() {
-        return fileId;
+    public String getOwner() {
+        return owner;
     }
 
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

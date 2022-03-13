@@ -1,33 +1,25 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
-public class Notice {
-    private String owner;
-    private String id;
+public class Note {
+    private Integer id;
     private String title;
     private String description;
+    private Integer userId;
 
-    public Notice() { }
+    public Note() { }
 
-    public Notice(String owner, String id, String title, String description) {
-        this.owner = owner;
+    public Note(Integer id, String title, String description, Integer userId) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.userId = userId;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -45,5 +37,13 @@ public class Notice {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }

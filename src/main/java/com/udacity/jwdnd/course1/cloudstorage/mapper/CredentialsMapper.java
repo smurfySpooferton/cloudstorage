@@ -7,10 +7,10 @@ import java.util.List;
 
 @Mapper
 public interface CredentialsMapper {
-    @Select("SELECT * FROM CREDENTIALS WHERE owner = #{userId}")
+    @Select("SELECT * FROM CREDENTIALS WHERE userId = #{userId}")
     List<Credentials> getCredentials(String userId);
 
-    @Insert("INSERT INTO CREDENTIALS (url, username, password, owner) VALUES(#{url}, #{username}, #{password}, #{owner})")
+    @Insert("INSERT INTO CREDENTIALS (url, username, password, userId) VALUES(#{url}, #{username}, #{password}, #{userId})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(Credentials credentials);
 
