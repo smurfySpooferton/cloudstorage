@@ -26,7 +26,7 @@ public class CredentialsService {
         credentialsMapper.delete(credentialsId);
     }
 
-    public List<Credentials> getCredentials(String userId) {
+    public List<Credentials> getCredentials(Integer userId) {
         return credentialsMapper.getCredentials(userId);
     }
 }

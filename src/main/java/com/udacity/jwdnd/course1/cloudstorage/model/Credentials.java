@@ -1,52 +1,53 @@
 package com.udacity.jwdnd.course1.cloudstorage.model;
 
 public class Credentials {
-    private Integer id;
-    private String url;
-    private String username;
-    private String password;
+    private Integer credentialsId;
+    private String credentialsUrl;
+    private String credentialsUsername;
+    private String credentialsPassword;
     private Integer userId;
 
-    public Credentials() { }
+    public Credentials() {
+    }
 
-    public Credentials(Integer id, String url, String username, String password, Integer userId) {
-        this.id = id;
-        this.url = url;
-        this.username = username;
-        this.password = password;
+    public Credentials(Integer credentialsId, String credentialsUrl, String credentialsUsername, String credentialsPassword, Integer userId) {
+        this.credentialsId = credentialsId;
+        this.credentialsUrl = credentialsUrl;
+        this.credentialsUsername = credentialsUsername;
+        this.credentialsPassword = credentialsPassword;
         this.userId = userId;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getCredentialsId() {
+        return credentialsId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setCredentialsId(Integer credentialsId) {
+        this.credentialsId = credentialsId;
     }
 
-    public String getUrl() {
-        return url;
+    public String getCredentialsUrl() {
+        return credentialsUrl;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setCredentialsUrl(String credentialsUrl) {
+        this.credentialsUrl = credentialsUrl;
     }
 
-    public String getUsername() {
-        return username;
+    public String getCredentialsUsername() {
+        return credentialsUsername;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setCredentialsUsername(String credentialsUsername) {
+        this.credentialsUsername = credentialsUsername;
     }
 
-    public String getPassword() {
-        return password;
+    public String getCredentialsPassword() {
+        return credentialsPassword;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setCredentialsPassword(String credentialsPassword) {
+        this.credentialsPassword = credentialsPassword;
     }
 
     public Integer getUserId() {

@@ -7,30 +7,83 @@ CREATE TABLE IF NOT EXISTS USERS (
   lastname VARCHAR(20)
 );
 
-CREATE TABLE IF NOT EXISTS NOTES (
-    id INT PRIMARY KEY auto_increment,
-    title VARCHAR(20),
-    description VARCHAR (1000),
+CREATE TABLE IF NOT EXISTS NOTES
+(
+    noteId
+    INT
+    PRIMARY
+    KEY
+    auto_increment,
+    noteTitle
+    VARCHAR
+(
+    20
+),
+    noteDescription VARCHAR
+(
+    1000
+),
     userid INT,
-    foreign key (userid) references USERS(id)
-);
+    foreign key
+(
+    userid
+) references USERS
+(
+    id
+)
+    );
 
-CREATE TABLE IF NOT EXISTS FILES (
-    id INT PRIMARY KEY auto_increment,
-    filename VARCHAR,
-    contenttype VARCHAR,
-    filesize VARCHAR,
-    userid INT,
-    filedata BLOB,
-    foreign key (userid) references USERS(id)
-);
+CREATE TABLE IF NOT EXISTS FILES
+(
+    id
+    INT
+    PRIMARY
+    KEY
+    auto_increment,
+    filename
+    VARCHAR,
+    contenttype
+    VARCHAR,
+    filesize
+    VARCHAR,
+    userid
+    INT,
+    filedata
+    BLOB,
+    foreign
+    key
+(
+    userid
+) references USERS
+(
+    id
+)
+    );
 
-CREATE TABLE IF NOT EXISTS CREDENTIALS (
-    id INT PRIMARY KEY auto_increment,
-    url VARCHAR(100),
-    username VARCHAR (30),
+CREATE TABLE IF NOT EXISTS CREDENTIALS
+(
+    credentialsId
+    INT
+    PRIMARY
+    KEY
+    auto_increment,
+    credentialsUrl
+    VARCHAR
+(
+    100
+),
+    credentialsUsername VARCHAR
+(
+    30
+),
     key VARCHAR,
-    password VARCHAR,
+    credentialsPassword VARCHAR,
     userid INT,
-    foreign key (userid) references USERS(id)
-);
+    foreign key
+(
+    userid
+) references USERS
+(
+    id
+)
+    );
