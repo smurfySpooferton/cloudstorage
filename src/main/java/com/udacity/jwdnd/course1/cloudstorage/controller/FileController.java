@@ -10,6 +10,9 @@ import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 import com.udacity.jwdnd.course1.cloudstorage.util.SuccessBuilder;
 import org.javatuples.Pair;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -51,7 +54,7 @@ public class FileController {
         Integer userId = getUserId();
         switch (activeTab) {
             case FILES: {
-                break;
+                return fileService.getFileNames(userId);
             }
             case NOTES: {
                 return noteService.getNotes(userId);
@@ -85,6 +88,20 @@ public class FileController {
 
     public String fileViewName() {
         return "home";
+    }
+
+    @GetMapping(value = "/download")
+    public HttpEntity getFile(@RequestParam Integer fileId, Model model) {
+        HttpHeaders header = new HttpHeaders();
+        File file = fileService.getFile(getUserId(), fileId);
+        if (!file.isValid()) {
+            updateModel(model, FILES, ERROR_GET);
+            return new HttpEntity(new byte[0], header);
+        }
+        header.setContentType(MediaType.valueOf(file.getContentType()));
+        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getFileName().replace(" ", "_"));
+        header.setContentLength(file.getFileData().length);
+        return new HttpEntity(file.getFileData(), header);
     }
 
     @PostMapping("/uploadFile")
@@ -148,7 +165,8 @@ public class FileController {
 
     /// DELETE
     @PostMapping("/deleteFile")
-    public String deleteFile(Integer noteId, Model model) {
+    public String deleteFile(Integer fileId, Model model) {
+        fileService.deleteFile(fileId);
         updateModel(model, FILES, SUCCESS_DELETE);
         return fileViewName();
     }

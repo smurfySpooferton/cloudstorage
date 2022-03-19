@@ -12,6 +12,11 @@ public class File {
     private Integer userId;
     private byte[] fileData;
 
+    public File(Integer fileId, String fileName) {
+        this.fileId = fileId;
+        this.fileName = fileName;
+    }
+
     public File(MultipartFile file) throws IOException {
         this.fileName = file.getOriginalFilename() != null ? file.getOriginalFilename() : file.getName();
         this.contentType = file.getContentType();

@@ -12,6 +12,6 @@ public class Constants {
     public static final String CREDENTIALS_KEY = "credentials";
 
     public enum OperationStatus {
-        SUCCESS_INSERT, SUCCESS_EDIT, SUCCESS_DELETE, ERROR_INSERT, ERROR_EDIT, ERROR_DELETE
+        SUCCESS_INSERT, SUCCESS_EDIT, SUCCESS_DELETE, ERROR_INSERT, ERROR_EDIT, ERROR_DELETE, ERROR_GET
     }
 }

@@ -52,7 +52,8 @@
                                 <tbody>
                                 <tr th:each="file : ${files}">
                                     <td>
-                                        <a class="btn btn-success" target="_blank">View</a>
+                                        <a class="btn btn-success" target="_blank"
+                                           th:onclick="downloadFile([[${file.fileId}]])">View</a>
                                         <a class="btn btn-danger" th:onclick="deleteFile([[${file.fileId}]])">Delete</a>
                                     </td>
                                     <th scope="row" th:text="${file.fileName}"></th>
@@ -244,8 +245,11 @@
                 </div>
             </div>
         </div>
-        <form action="#" enctype="multipart/form-data" id="delete-file" method="POST" th:action="@{/home/deleteNote}">
+        <form action="#" enctype="multipart/form-data" id="delete-file" method="POST" th:action="@{/home/deleteFile}">
             <input hidden="hidden" id="delete-file-value" name="fileId" type="number">
+        </form>
+        <form action="#" id="download-file" method="GET" target="_blank" th:action="@{/home/download/}">
+            <input hidden="hidden" id="download-file-value" name="fileId" type="number">
         </form>
         <form action="#" enctype="multipart/form-data" id="delete-note" method="POST" th:action="@{/home/deleteNote}">
             <input hidden="hidden" id="delete-note-value" name="noteId" type="number">
@@ -295,6 +299,11 @@
             function deleteCredentials(id) {
                 $('#delete-credentials-value').val(id);
                 $('#delete-credentials').submit();
+            }
+
+            function downloadFile(id) {
+                $('#download-file-value').val(id);
+                $('#download-file').submit();
             }
 
         </script>

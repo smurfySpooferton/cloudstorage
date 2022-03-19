@@ -33,6 +33,9 @@ public class SuccessBuilder {
                 message = buildInsertError(type);
                 key = ERROR_KEY;
                 break;
+            case ERROR_GET:
+                message = buildGetError(type);
+                key = ERROR_KEY;
             default:
                 message = "Error!";
                 key = ERROR_KEY;
@@ -76,5 +79,9 @@ public class SuccessBuilder {
 
     private static String buildInsertError(int type) {
         return "Error adding" + typeToString(type);
+    }
+
+    private static String buildGetError(int type) {
+        return "Error getting" + typeToString(type);
     }
 }
