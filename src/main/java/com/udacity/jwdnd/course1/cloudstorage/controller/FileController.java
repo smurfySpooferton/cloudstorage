@@ -60,7 +60,11 @@ public class FileController {
                 return noteService.getNotes(userId);
             }
             case CREDENTIALS: {
-                return credentialsService.getCredentials(userId);
+                try {
+                    return credentialsService.getCredentials(userId);
+                } catch (Exception e) {
+                    List.of();
+                }
             }
             default:
                 break;
@@ -149,15 +153,24 @@ public class FileController {
         OperationStatus status;
         if (credentials.getCredentialsId() != null) {
             if (credentialsService.isOwner(userId, credentials.getCredentialsId())) {
-                credentialsService.editCredentials(credentials);
-                status = SUCCESS_EDIT;
+                try {
+                    credentialsService.editCredentials(credentials);
+                    status = SUCCESS_EDIT;
+                } catch (Exception e) {
+                    status = ERROR_EDIT;
+                }
             } else {
                 status = ERROR_EDIT;
             }
         } else {
             credentials.setUserId(getUserId());
-            credentialsService.addCredentials(credentials);
-            status = SUCCESS_INSERT;
+            try {
+                credentialsService.addCredentials(credentials);
+                status = SUCCESS_INSERT;
+            } catch (Exception e) {
+                status = ERROR_INSERT;
+            }
+
         }
         updateModel(model, CREDENTIALS, status);
         return fileViewName();

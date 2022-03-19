@@ -177,7 +177,8 @@
                                     <td class="credentials-username"
                                         th:text="${credentialsItem.credentialsUsername}"></td>
                                     <td class="credentials-password"
-                                        th:text="${credentialsItem.credentialsPassword}"></td>
+                                        th:value="${credentialsItem.credentialsPassword}">***
+                                    </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(credentials)}">
                                     <td>
@@ -268,9 +269,18 @@
                 let initialTab = [[${tab}]];
                 let tabs = ["#nav-files-tab", "#nav-notes-tab", "#nav-credentials-tab"];
                 $(tabs[initialTab]).click();
+                setTimeout(function () {
+                    removeAlerts();
+                }, 5000);
+            }
+
+            function removeAlerts() {
+                $('#success-msg').remove();
+                $('#error-msg').remove();
             }
 
             function showNoteModal(noteId, noteTitle, noteDescription) {
+                removeAlerts()
                 $('#note-id').val(noteId ? noteId : '');
                 $('#note-title').val(noteTitle ? noteTitle : '');
                 $('#note-description').val(noteDescription ? noteDescription : '');
@@ -279,6 +289,7 @@
 
             // For opening the credentials modal
             function showCredentialsModal(credentialId, url, username, password) {
+                removeAlerts()
                 $('#credentials-id').val(credentialId ? credentialId : '');
                 $('#credentials-url').val(url ? url : '');
                 $('#credentials-username').val(username ? username : '');
@@ -287,21 +298,25 @@
             }
 
             function deleteFile(id) {
+                removeAlerts()
                 $('#delete-file-value').val(id);
                 $('#delete-file').submit();
             }
 
             function deleteNote(id) {
+                removeAlerts()
                 $('#delete-note-value').val(id);
                 $('#delete-note').submit();
             }
 
             function deleteCredentials(id) {
+                removeAlerts()
                 $('#delete-credentials-value').val(id);
                 $('#delete-credentials').submit();
             }
 
             function downloadFile(id) {
+                removeAlerts()
                 $('#download-file-value').val(id);
                 $('#download-file').submit();
             }
