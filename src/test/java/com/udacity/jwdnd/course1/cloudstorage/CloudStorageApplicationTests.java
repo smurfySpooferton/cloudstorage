@@ -3,16 +3,17 @@ package com.udacity.jwdnd.course1.cloudstorage;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
 import java.io.File;
+import java.util.List;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
@@ -23,12 +24,13 @@ class CloudStorageApplicationTests {
 
 	@BeforeAll
 	static void beforeAll() {
-		WebDriverManager.chromedriver().setup();
+		WebDriverManager.firefoxdriver().setup();
 	}
 
 	@BeforeEach
 	public void beforeEach() {
-		this.driver = new ChromeDriver();
+		System.setProperty("webdriver.gecko.driver", "geckodriver.exe");
+		this.driver = new FirefoxDriver();
 	}
 
 	@AfterEach
@@ -36,6 +38,7 @@ class CloudStorageApplicationTests {
 		if (this.driver != null) {
 			driver.quit();
 		}
+
 	}
 
 	@Test
@@ -78,15 +81,17 @@ class CloudStorageApplicationTests {
 		inputPassword.sendKeys(password);
 
 		// Attempt to sign up.
-		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("buttonSignUp")));
-		WebElement buttonSignUp = driver.findElement(By.id("buttonSignUp"));
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("signupButton")));
+		WebElement buttonSignUp = driver.findElement(By.id("signupButton"));
 		buttonSignUp.click();
 
 		/* Check that the sign up was successful. 
 		// You may have to modify the element "success-msg" and the sign-up 
 		// success message below depening on the rest of your code.
 		*/
-		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+		//Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
+
+		//User will be redirected after login, no success dialogue provided
 	}
 
 	
@@ -156,7 +161,6 @@ class CloudStorageApplicationTests {
 		// Create a test account
 		doMockSignUp("URL","Test","UT","123");
 		doLogIn("UT", "123");
-		
 		// Try to access a random made-up URL.
 		driver.get("http://localhost:" + this.port + "/some-random-page");
 		Assertions.assertFalse(driver.getPageSource().contains("Whitelabel Error Page"));
@@ -200,6 +204,156 @@ class CloudStorageApplicationTests {
 
 	}
 
+	@Test
+	public void testAddNote() {
+		doMockSignUp("Test", "Test", "AddNote", "123");
+		doLogIn("AddNote", "123");
+		addNote("Hello Note", "This is a test!");
+	}
 
+	@Test
+	public void testEditNote() {
+		doMockSignUp("Test", "Test", "EditNote", "123");
+		doLogIn("EditNote", "123");
+		addNote("Hello Note", "This is a test!");
+		WebElement item = driver.findElement(By.id("note-table"));
+		List<WebElement> buttons = item.findElements(By.className("btn-success"));
+		buttons.get(buttons.size() - 1).click();
+		driver.findElement(By.id("note-title")).sendKeys("s");
+		driver.findElement(By.id("note-description")).sendKeys(" Editing seems to work.");
+		driver.findElement(By.id("noteSubmit")).submit();
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		assertLastNoteEntry("Hello Notes", "This is a test! Editing seems to work.");
+	}
 
+	@Test
+	public void testDeleteNote() {
+		doMockSignUp("Test", "Test", "DeleteNote", "123");
+		doLogIn("DeleteNote", "123");
+
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		addNote("DELETE", "DELETE THIS ITEM");
+		assertLastNoteEntry("DELETE", "DELETE THIS ITEM");
+
+		WebElement item = driver.findElement(By.id("note-table"));
+		List<WebElement> buttons = item.findElements(By.className("btn-danger"));
+		buttons.get(buttons.size() - 1).click();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+
+		List<WebElement> entries = driver.findElement(By.id("note-table")).findElements(By.className("note-entry"));
+		for (WebElement entry : entries) {
+			assertNoteEntry(entry, "DELETE", "DELETE THIS ITEM", false);
+		}
+	}
+
+	private void assertLastNoteEntry(String expectedTitle, String expectedDescription) {
+		List<WebElement> entries = driver.findElement(By.id("note-table")).findElements(By.className("note-entry"));
+		for (WebElement entry : entries) {
+			assertNoteEntry(entry, expectedTitle, expectedDescription, true);
+		}
+	}
+
+	private void assertNoteEntry(WebElement item, String expectedTitle, String expectedDescription, boolean expected) {
+		String title = item.findElement(By.className("note-title")).getAttribute("innerHTML");
+		String description = item.findElement(By.className("note-description")).getAttribute("innerHTML");
+		if (expected) {
+			Assertions.assertTrue(title.equals(expectedTitle));
+			Assertions.assertTrue(description.equals(expectedDescription));
+		} else {
+			Assertions.assertFalse(title.equals(expectedTitle));
+			Assertions.assertFalse(description.equals(expectedDescription));
+		}
+	}
+
+	private void addNote(String title, String description) {
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		driver.findElement(By.id("nav-notes-tab")).click();
+		WebElement item = driver.findElement(By.id("nav-notes"));
+		item.findElement(By.className("btn-info")).click();
+		driver.findElement(By.id("note-title")).sendKeys(title);
+		driver.findElement(By.id("note-description")).sendKeys(description);
+		driver.findElement(By.id("noteSubmit")).submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+	}
+
+	@Test
+	public void testAddCredentials() {
+		doMockSignUp("Test", "Test", "AddCredentials", "123");
+		doLogIn("AddCredentials", "123");
+		addCredentials("localhost:8080", "username", "password");
+	}
+
+	@Test
+	public void testDeleteCredentials() {
+		doMockSignUp("Test", "Test", "DeleteCredentials", "123");
+		doLogIn("DeleteCredentials", "123");
+
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		addCredentials("DELETE", "username", "password");
+		assertLastCredentials("DELETE", "username", "password");
+
+		WebElement item = driver.findElement(By.id("credentials-table"));
+		List<WebElement> buttons = item.findElements(By.className("btn-danger"));
+		buttons.get(buttons.size() - 1).click();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+
+		List<WebElement> entries = driver.findElement(By.id("credentials-table")).findElements(By.className("credentials-entry"));
+		for (WebElement entry : entries) {
+			assertNoteEntry(entry, "DELETE", "DELETE THIS ITEM", false);
+		}
+	}
+
+	@Test
+	public void testEditCredentials() {
+		doMockSignUp("Test", "Test", "EditCredentials", "123");
+		doLogIn("EditCredentials", "123");
+		addCredentials("localhost", "DH", "12");
+		WebElement item = driver.findElement(By.id("credentials-table"));
+		List<WebElement> buttons = item.findElements(By.className("btn-success"));
+		buttons.get(buttons.size() - 1).click();
+		driver.findElement(By.id("credentials-url")).sendKeys(":8080");
+		driver.findElement(By.id("credentials-username")).sendKeys("E");
+		driver.findElement(By.id("credentials-password")).sendKeys("3");
+		driver.findElement(By.id("credentialSubmit")).submit();
+
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		assertLastCredentials("localhost:8080", "DHE", "123");
+	}
+
+	private void addCredentials(String url, String username, String password) {
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		driver.findElement(By.id("nav-credentials-tab")).click();
+		WebElement item = driver.findElement(By.id("nav-credentials"));
+		item.findElement(By.className("btn-info")).click();
+		driver.findElement(By.id("credentials-url")).sendKeys(url);
+		driver.findElement(By.id("credentials-username")).sendKeys(username);
+		driver.findElement(By.id("credentials-password")).sendKeys(password);
+		driver.findElement(By.id("credentialSubmit")).submit();
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+	}
+
+	private void assertLastCredentials(String expectedUrl, String expectedUsername, String expectedPassword) {
+		WebElement newItem = driver.findElement(By.id("credentials-table"));
+		List<WebElement> entries = newItem.findElements(By.className("credentials-entry"));
+		assertCredentials(entries.get(entries.size() - 1), expectedUrl, expectedUsername, expectedPassword, true);
+	}
+
+	private void assertCredentials(WebElement item, String expectedUrl, String expectedUsername, String expectedPassword, boolean expected) {
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
+		String url = item.findElement(By.className("credentials-url")).getAttribute("innerHTML");
+		String username = item.findElement(By.className("credentials-username")).getAttribute("innerHTML");
+		String password = item.findElement(By.className("credentials-password")).getAttribute("innerHTML");
+		if (expected) {
+			Assertions.assertTrue(url.equals(expectedUrl));
+			Assertions.assertTrue(username.equals(expectedUsername));
+			Assertions.assertTrue(password.equals(expectedPassword));
+		} else {
+			Assertions.assertFalse(url.equals(expectedUrl));
+			Assertions.assertFalse(username.equals(expectedUsername));
+			Assertions.assertFalse(password.equals(expectedPassword));
+		}
+	}
 }

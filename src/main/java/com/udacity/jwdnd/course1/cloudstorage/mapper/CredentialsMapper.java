@@ -19,4 +19,7 @@ public interface CredentialsMapper {
 
     @Delete("DELETE FROM CREDENTIALS WHERE credentialsId = #{credentialsId}")
     int delete(Integer id);
+
+    @Select("SELECT COUNT(credentialsId) FROM CREDENTIALS WHERE userId = #{userId} AND credentialsId = #{credentialsId}")
+    int checkCountForIdAndUser(Integer userId, Integer credentialsId);
 }

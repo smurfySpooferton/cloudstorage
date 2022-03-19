@@ -29,4 +29,8 @@ public class CredentialsService {
     public List<Credentials> getCredentials(Integer userId) {
         return credentialsMapper.getCredentials(userId);
     }
+
+    public boolean isOwner(Integer userId, Integer credentialsId) {
+        return credentialsMapper.checkCountForIdAndUser(userId, credentialsId) > 0;
+    }
 }

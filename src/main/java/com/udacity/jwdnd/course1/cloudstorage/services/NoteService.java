@@ -30,4 +30,8 @@ public class NoteService {
     public List<Note> getNotes(Integer userId) {
         return noteMapper.getNotes(userId);
     }
+
+    public boolean isOwner(Integer userId, Integer noteId) {
+        return noteMapper.checkCountForIdAndUser(userId, noteId) > 0;
+    }
 }

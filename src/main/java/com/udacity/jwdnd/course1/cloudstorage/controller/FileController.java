@@ -2,10 +2,14 @@ package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 
 import com.udacity.jwdnd.course1.cloudstorage.model.Credentials;
+import com.udacity.jwdnd.course1.cloudstorage.model.File;
 import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.services.CredentialsService;
+import com.udacity.jwdnd.course1.cloudstorage.services.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.services.NoteService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
+import com.udacity.jwdnd.course1.cloudstorage.util.SuccessBuilder;
+import org.javatuples.Pair;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -13,20 +17,22 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+
+import static com.udacity.jwdnd.course1.cloudstorage.util.Constants.*;
+import static com.udacity.jwdnd.course1.cloudstorage.util.Constants.OperationStatus.*;
 
 @Controller
 @RequestMapping("/home")
 public class FileController {
-    private static final int FILES = 0;
-    private static final int NOTES = 1;
-    private static final int CREDENTIALS = 2;
-
+    private final FileService fileService;
     private final NoteService noteService;
     private final CredentialsService credentialsService;
     private final UserService userService;
 
-    public FileController(NoteService noteService, CredentialsService credentialsService, UserService userService) {
+    public FileController(FileService fileService, NoteService noteService, CredentialsService credentialsService, UserService userService) {
+        this.fileService = fileService;
         this.noteService = noteService;
         this.credentialsService = credentialsService;
         this.userService = userService;
@@ -59,8 +65,21 @@ public class FileController {
         return List.of();
     }
 
+    private Model updateModel(Model model, int activeTab, OperationStatus status) {
+        model.addAttribute(TAB_KEY, activeTab);
+        model.addAttribute(FILES_KEY, loadTab(FILES));
+        model.addAttribute(NOTES_KEY, loadTab(NOTES));
+        model.addAttribute(CREDENTIALS_KEY, loadTab(CREDENTIALS));
+        if (status != null) {
+            Pair<String, String> pair = SuccessBuilder.buildMessage(status, activeTab);
+            model.addAttribute(pair.getValue0(), pair.getValue1());
+        }
+        return model;
+    }
+
     @GetMapping()
-    public String fileView() {
+    public String fileView(Model model) {
+        updateModel(model, FILES, null);
         return fileViewName();
     }
 
@@ -69,58 +88,82 @@ public class FileController {
     }
 
     @PostMapping("/uploadFile")
-    public String uploadFile(@RequestParam(required = false) MultipartFile file) {
+    public String uploadFile(@RequestParam MultipartFile multipartFile, Model model) {
+        OperationStatus status;
+        try {
+            File file = new File(multipartFile);
+            file.setUserId(getUserId());
+            if (file.isValid()) {
+                fileService.addFile(file);
+                status = SUCCESS_INSERT;
+            } else {
+                status = ERROR_INSERT;
+            }
+        } catch (IOException e) {
+            status = ERROR_INSERT;
+        }
+        updateModel(model, FILES, status);
         return fileViewName();
     }
 
-    @PostMapping("/addNote")
+    @PostMapping("/note")
     public String addNote(@ModelAttribute Note note, Model model) {
-        note.setUserId(getUserId());
-        noteService.addNote(note);
-        model.addAttribute("data", loadTab(NOTES));
-        model.addAttribute("tab", NOTES);
+        Integer userId = getUserId();
+        OperationStatus status;
+        if (note.getNoteId() != null) {
+            if (noteService.isOwner(userId, note.getNoteId())) {
+                noteService.editNote(note);
+                status = SUCCESS_EDIT;
+            } else {
+                status = ERROR_EDIT;
+            }
+        } else {
+            note.setUserId(userId);
+            noteService.addNote(note);
+            status = SUCCESS_INSERT;
+        }
+        updateModel(model, NOTES, status);
         return fileViewName();
     }
 
-    @PostMapping("/addCredentials")
+    @PostMapping("/credentials")
     public String addCredentials(@ModelAttribute Credentials credentials, Model model) {
-        credentials.setUserId(getUserId());
-        credentialsService.addCredentials(credentials);
-        model.addAttribute("data", loadTab(CREDENTIALS));
-        model.addAttribute("tab", CREDENTIALS);
+        Integer userId = getUserId();
+        OperationStatus status;
+        if (credentials.getCredentialsId() != null) {
+            if (credentialsService.isOwner(userId, credentials.getCredentialsId())) {
+                credentialsService.editCredentials(credentials);
+                status = SUCCESS_EDIT;
+            } else {
+                status = ERROR_EDIT;
+            }
+        } else {
+            credentials.setUserId(getUserId());
+            credentialsService.addCredentials(credentials);
+            status = SUCCESS_INSERT;
+        }
+        updateModel(model, CREDENTIALS, status);
         return fileViewName();
     }
 
     /// DELETE
-    @DeleteMapping("/deleteFile")
-    public String deleteFile(Integer fileId) {
+    @PostMapping("/deleteFile")
+    public String deleteFile(Integer noteId, Model model) {
+        updateModel(model, FILES, SUCCESS_DELETE);
         return fileViewName();
     }
 
-    @DeleteMapping("/deleteNote")
-    public String deleteNote(Integer noteId) {
+    @PostMapping("/deleteNote")
+    public String deleteNote(Integer noteId, Model model) {
+        noteService.deleteNote(noteId);
+        updateModel(model, NOTES, SUCCESS_DELETE);
         return fileViewName();
     }
 
-    @DeleteMapping("/deleteCredentials")
-    public String deleteCredentials(Integer credentialsId) {
-        return fileViewName();
-    }
-
-    /// EDIT
-    @PutMapping("/editNote")
-    public String editNote(@ModelAttribute Note note) {
-        if (getUserId().equals(note.getUserId())) {
-            noteService.editNote(note);
-        }
-        return fileViewName();
-    }
-
-    @PutMapping("/editCredentials")
-    public String editCredentials(@ModelAttribute Credentials credentials) {
-        if (getUserId().equals(credentials.getUserId())) {
-            credentialsService.editCredentials(credentials);
-        }
+    @PostMapping("/deleteCredentials")
+    public String deleteCredentials(Integer credentialsId, Model model) {
+        credentialsService.deleteCredentials(credentialsId);
+        updateModel(model, CREDENTIALS, SUCCESS_DELETE);
         return fileViewName();
     }
 }
